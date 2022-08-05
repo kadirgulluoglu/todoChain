@@ -9,6 +9,7 @@ import 'package:web_socket_channel/io.dart';
 class TodoListModel extends ChangeNotifier {
   List<Task> todos = [];
   bool isLoading = true;
+  int taskCount = 0;
   final String _rpcUrl = "HTTP://192.168.1.37:7545";
   final String _wsUrl = "ws://192.168.1.37:7545/";
   final String _privateKey =
@@ -65,6 +66,7 @@ class TodoListModel extends ChangeNotifier {
     List totalTasksList = await _client!
         .call(contract: _contract!, function: _taskCount!, params: []);
     BigInt totalTasks = totalTasksList[0];
+    taskCount = totalTasks.toInt();
     todos.clear();
     for (var i = 0; i < totalTasks.toInt(); i++) {
       var temp = await _client!.call(
@@ -74,6 +76,18 @@ class TodoListModel extends ChangeNotifier {
     }
     isLoading = false;
     notifyListeners();
+  }
+
+  addTask(String taskNameData) async {
+    isLoading = true;
+    notifyListeners();
+    await _client!.sendTransaction(
+        _credentials!,
+        Transaction.callContract(
+            contract: _contract!,
+            function: _createTask!,
+            parameters: [taskNameData]));
+    getTodos();
   }
 }
 

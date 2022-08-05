@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:to_do_list_blockchain_dapp/model/todolist_model.dart';
+
+import 'screens/homepage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,21 +13,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'TodoList Dapp',
-      home: TodoList(),
-    );
-  }
-}
-
-class TodoList extends StatelessWidget {
-  const TodoList({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('TodoList'),
+    return ChangeNotifierProvider(
+      create: (context) => TodoListModel(),
+      child: MaterialApp(
+        title: 'TodoList Dapp',
+        home: TodoList(),
       ),
     );
   }

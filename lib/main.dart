@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => TodoListModel(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'TodoList Dapp',
         home: TodoList(),
       ),

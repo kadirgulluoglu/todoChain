@@ -23,7 +23,11 @@ class TodoListModel extends ChangeNotifier {
   ContractFunction? _taskCount;
   ContractFunction? _todos;
   ContractFunction? _createTask;
+  ContractFunction? _updateTask;
+  ContractFunction? _deleteTask;
+  ContractFunction? _toggleComplete;
   ContractEvent? _taskCreatedEvent;
+
   TodoListModel() {
     initiateSetup();
   }
@@ -39,7 +43,7 @@ class TodoListModel extends ChangeNotifier {
 
   Future<void> getAbi() async {
     String abiStringFile =
-        await rootBundle.loadString("src/abis/TodoList.json");
+        await rootBundle.loadString("src/abis/TodoContract.json");
     var jsonAbi = jsonDecode(abiStringFile);
     _abiCode = jsonEncode(jsonAbi['abi']);
     _contractAddress =
@@ -53,12 +57,14 @@ class TodoListModel extends ChangeNotifier {
 
   Future<void> getDeployedContract() async {
     _contract = DeployedContract(
-        ContractAbi.fromJson(_abiCode!, "todoList"), _contractAddress!);
+        ContractAbi.fromJson(_abiCode!, "TodoList"), _contractAddress!);
     _taskCount = _contract!.function("taskCount");
+    _updateTask = _contract!.function("updateTask");
     _createTask = _contract!.function("createTask");
+    _deleteTask = _contract!.function("deleteTask");
+    _toggleComplete = _contract!.function("toggleComplete");
     _todos = _contract!.function("todos");
-    _taskCreatedEvent = _contract!.event("TaskCreated");
-    getTodos();
+    await getTodos();
   }
 
   getTodos() async {
@@ -70,15 +76,60 @@ class TodoListModel extends ChangeNotifier {
     for (var i = 0; i < totalTasks.toInt(); i++) {
       var temp = await _client!.call(
           contract: _contract!, function: _todos!, params: [BigInt.from(i)]);
-      todos.add(Task(taskName: temp[0], isCompleted: temp[1]));
+      if (temp[1] != "") {
+        todos.add(
+          Task(
+            id: (temp[0] as BigInt).toInt(),
+            taskName: temp[1],
+            isCompleted: temp[2],
+          ),
+        );
+      }
     }
     isLoading = false;
     notifyListeners();
   }
 
-  void updateTask(Task task) {
-    task.doneChange();
+  updateTask(int id, String taskNameData) async {
+    isLoading = true;
     notifyListeners();
+    await _client!.sendTransaction(
+      _credentials!,
+      Transaction.callContract(
+        contract: _contract!,
+        function: _updateTask!,
+        parameters: [BigInt.from(id), taskNameData],
+      ),
+    );
+    await getTodos();
+  }
+
+  deleteTask(int id) async {
+    isLoading = true;
+    notifyListeners();
+    await _client!.sendTransaction(
+      _credentials!,
+      Transaction.callContract(
+        contract: _contract!,
+        function: _deleteTask!,
+        parameters: [BigInt.from(id)],
+      ),
+    );
+    await getTodos();
+  }
+
+  toggleComplete(int id) async {
+    // isLoading = true;
+    notifyListeners();
+    await _client!.sendTransaction(
+      _credentials!,
+      Transaction.callContract(
+        contract: _contract!,
+        function: _toggleComplete!,
+        parameters: [BigInt.from(id)],
+      ),
+    );
+    await getTodos();
   }
 
   addTask(String taskNameData) async {
@@ -90,15 +141,13 @@ class TodoListModel extends ChangeNotifier {
             contract: _contract!,
             function: _createTask!,
             parameters: [taskNameData]));
-    getTodos();
+    await getTodos();
   }
 }
 
 class Task {
-  String? taskName;
-  bool isCompleted;
-  Task({this.taskName, this.isCompleted = false});
-  void doneChange() {
-    isCompleted = !isCompleted;
-  }
+  final int id;
+  final String? taskName;
+  final bool isCompleted;
+  Task({required this.id, this.taskName, this.isCompleted = false});
 }

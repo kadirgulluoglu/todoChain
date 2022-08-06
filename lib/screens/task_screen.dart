@@ -12,6 +12,7 @@ class AddTaskScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     var listModel = Provider.of<TodoListModel>(context);
     return Container(
+      decoration: BoxDecoration(color: Colors.white.withOpacity(0.1)),
       padding: const EdgeInsets.all(30),
       child: Column(
         children: [

@@ -17,18 +17,16 @@ class TodoList extends StatelessWidget {
       backgroundColor: primary,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: buildFloatingActionButton(context),
-      body: listModel.isLoading
-          ? buildLoadingIndicator()
-          : SafeArea(
-              child: Column(
-                children: [
-                  buildIconAndName(),
-                  buildCountTaskText(listModel),
-                  buildTodoListView(listModel),
-                  buildSpacer(),
-                ],
-              ),
-            ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            buildIconAndName(),
+            buildCountTaskText(listModel),
+            buildTodoListView(listModel),
+            buildSpacer(),
+          ],
+        ),
+      ),
     );
   }
 
@@ -53,41 +51,44 @@ class TodoList extends StatelessWidget {
               borderRadius: BorderRadius.all(Radius.circular(16))),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: ListView.builder(
-              itemCount: listModel.taskCount,
-              itemBuilder: (context, index) => GestureDetector(
-                onHorizontalDragStart: (dragStartDetails) {
-                  listModel.toggleComplete(listModel.todos[index].id);
-                },
-                child: ListTile(
-                  title: Row(
-                    children: [
-                      Text("● ",
-                          style: TextStyle(
-                            fontSize: 25,
-                            color: listModel.todos[index].isCompleted
-                                ? action
-                                : black,
-                          )),
-                      Text(
-                        listModel.todos[index].taskName.toString(),
-                        style: TextStyle(
-                            fontSize: 25,
-                            color: listModel.todos[index].isCompleted
-                                ? action
-                                : black,
-                            decoration: listModel.todos[index].isCompleted
-                                ? TextDecoration.lineThrough
-                                : null),
+            child: listModel.isLoading
+                ? buildLoadingIndicator()
+                : ListView.builder(
+                    itemCount: listModel.taskCount,
+                    itemBuilder: (context, index) => GestureDetector(
+                      onHorizontalDragStart: (dragStartDetails) {
+                        listModel.toggleComplete(listModel.todos[index].id);
+                      },
+                      child: ListTile(
+                        title: Row(
+                          children: [
+                            Text("● ",
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  color: listModel.todos[index].isCompleted
+                                      ? action
+                                      : black,
+                                )),
+                            Text(
+                              listModel.todos[index].taskName.toString(),
+                              style: TextStyle(
+                                  fontSize: 25,
+                                  color: listModel.todos[index].isCompleted
+                                      ? action
+                                      : black,
+                                  decoration: listModel.todos[index].isCompleted
+                                      ? TextDecoration.lineThrough
+                                      : null),
+                            ),
+                          ],
+                        ),
+                        onTap: () {
+                          buildBottomSheet(context,
+                              task: listModel.todos[index]);
+                        },
                       ),
-                    ],
+                    ),
                   ),
-                  onTap: () {
-                    buildBottomSheet(context, task: listModel.todos[index]);
-                  },
-                ),
-              ),
-            ),
           ),
         ),
       ),
@@ -98,7 +99,7 @@ class TodoList extends StatelessWidget {
 
   Center buildLoadingIndicator() {
     return const Center(
-      child: CircularProgressIndicator(color: white),
+      child: CircularProgressIndicator(color: primary),
     );
   }
 

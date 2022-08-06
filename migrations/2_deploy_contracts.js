@@ -1,4 +1,4 @@
-const TodoList = artifacts.require("TodoList");
+const TodoList = artifacts.require("TodoContract");
 
 module.exports = function (deployer) {
   deployer.deploy(TodoList);

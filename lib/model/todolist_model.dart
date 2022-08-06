@@ -44,7 +44,6 @@ class TodoListModel extends ChangeNotifier {
     _abiCode = jsonEncode(jsonAbi['abi']);
     _contractAddress =
         EthereumAddress.fromHex(jsonAbi['networks']["5777"]["address"]);
-    print(_contractAddress);
   }
 
   Future<void> getCredentials() async {
@@ -71,10 +70,14 @@ class TodoListModel extends ChangeNotifier {
     for (var i = 0; i < totalTasks.toInt(); i++) {
       var temp = await _client!.call(
           contract: _contract!, function: _todos!, params: [BigInt.from(i)]);
-      print(temp);
       todos.add(Task(taskName: temp[0], isCompleted: temp[1]));
     }
     isLoading = false;
+    notifyListeners();
+  }
+
+  void updateTask(Task task) {
+    task.doneChange();
     notifyListeners();
   }
 
@@ -93,6 +96,9 @@ class TodoListModel extends ChangeNotifier {
 
 class Task {
   String? taskName;
-  bool? isCompleted;
-  Task({this.taskName, this.isCompleted});
+  bool isCompleted;
+  Task({this.taskName, this.isCompleted = false});
+  void doneChange() {
+    isCompleted = !isCompleted;
+  }
 }

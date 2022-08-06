@@ -21,12 +21,16 @@ class AddTaskScreen extends StatelessWidget {
             style: TextStyle(fontSize: 30),
           ),
           TextField(
+            autofocus: true,
             controller: _editingController,
           ),
           MaterialButton(
             onPressed: () {
-              listModel.addTask(_editingController.text);
-              _editingController.clear();
+              if (_editingController.text != "") {
+                listModel.addTask(_editingController.text);
+                _editingController.clear();
+                Navigator.pop(context);
+              }
             },
             child: const Text(
               'Ekle',

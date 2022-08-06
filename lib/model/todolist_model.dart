@@ -119,8 +119,6 @@ class TodoListModel extends ChangeNotifier {
   }
 
   toggleComplete(int id) async {
-    // isLoading = true;
-    notifyListeners();
     await _client!.sendTransaction(
       _credentials!,
       Transaction.callContract(

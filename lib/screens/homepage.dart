@@ -55,17 +55,18 @@ class TodoList extends StatelessWidget {
           child: ListView.builder(
             itemCount: listModel.taskCount,
             itemBuilder: (context, index) => ListTile(
-                title: Text(
-                  listModel.todos[index].taskName.toString(),
-                  style: TextStyle(
-                      fontSize: 20,
-                      decoration: listModel.todos[index].isCompleted
-                          ? TextDecoration.lineThrough
-                          : null),
-                ),
-                onTap: () {
-                  listModel.updateTask(listModel.todos[index]);
-                }),
+              title: Text(
+                listModel.todos[index].taskName.toString(),
+                style: TextStyle(
+                    fontSize: 20,
+                    decoration: listModel.todos[index].isCompleted
+                        ? TextDecoration.lineThrough
+                        : null),
+              ),
+              onTap: () {
+                listModel.toggleComplete(listModel.todos[index].id);
+              },
+            ),
           ),
         ),
       ),
